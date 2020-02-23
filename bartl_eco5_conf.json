@@ -1,0 +1,675 @@
+{
+    "id":           "tem",
+    "vendor":       "BARTL",
+    "label":        "BARTL ECO5 LCI/HG 9kw",
+    "description":  "BARTL HP with TEM Controller SE 6024 WPC",
+
+    "authors":      ["Karsten Schmolders"],
+    "identification": ["32 32 30 39 30"],
+
+    "templates": [
+        {
+            "name": "templ",
+            "template": [
+                {"name": "command", "type": "data2b", "label": "Command"},
+                {"name": "type", "type": "char", "label": "Type"},
+                {"name": "unit", "type": "char", "label": "Unit"},
+                {"name": "max10", "type": "int", "label": "Max"},
+                {"name": "min10", "type": "int", "label": "Min"},
+                {"name": "temp10", "type": "int", "label": "Temperature", "factor": 0.1, "format":"%.1f°C"},
+                {"name": "param8b", "type": "bytes", "label": "Parameters 8bytes", "length":8},
+                {"name": "status", "type": "int", "label": "Status"},
+                {"name": "time", "type": "int", "label": "Uhrzeit"},
+                {"name": "wd", "type": "char", "label": "Tag"},
+                {"name": "counter", "type": "bcd", "label": "Zaehler", "length": 4},
+                {"name": "power", "type": "int", "label": "Leistung", "factor": 0.1, "format":"%.1f kW"},
+                {"name": "hours", "type": "bcd", "label": "Stunden", "length": 4, "factor": 0.01},
+                {"name": "powerMWH", "type": "int", "label": "Leistung", "factor": 0.1, "format":"%.1f MWh"}
+
+            ]
+        },
+        {
+            "name": "param_block_temp",
+            "template": [
+                {"name": "command", "type": "template", "id":"tem.templ.command"},
+                {"name": "type", "type": "template", "id":"tem.templ.type"},
+                {"name": "unit", "type": "template", "id":"tem.templ.unit"},
+                {"name": "max10", "type": "template", "id":"tem.templ.max10"},
+                {"name": "min10", "type": "template", "id":"tem.templ.min10"}
+            ]
+        },
+        {
+            "name": "param_block_count",
+            "template": [
+                {"name": "command", "type": "template", "id":"tem.templ.command"},
+                {"name": "type", "type": "template", "id":"tem.templ.type"},
+                {"name": "unit", "type": "template", "id":"tem.templ.unit"},
+                {"name": "byte2", "type": "template", "id":"tem.templ.status"}
+            ]
+        },
+
+
+
+
+        {
+            "name": "tempsensor",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "temp10", "type": "template", "id":"tem.templ.temp10"}
+            ]
+        },
+        {
+            "name": "statusblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "status", "type": "template", "id":"tem.templ.status"}
+            ]
+        },
+        {
+            "name": "timeblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "time", "type": "template", "id":"tem.templ.time"}
+            ]
+        },
+        {
+            "name": "wdblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "wd", "type": "template", "id":"tem.templ.wd"}
+            ]
+        },
+        {
+            "name": "countblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_count"},
+                {"name": "counter", "type": "template", "id":"tem.templ.counter"}
+            ]
+        },
+        {
+            "name": "hourblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_count"},
+                {"name": "hours", "type": "template", "id":"tem.templ.hours"}
+            ]
+        },
+        {
+            "name": "powerblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "power", "type": "template", "id":"tem.templ.power"}
+            ]
+        },
+        {
+            "name": "powerMWHblock",
+            "template": [
+                {"type": "template-block", "id":"tem.param_block_temp"},
+                {"name": "powerMWH", "type": "template", "id":"tem.templ.powerMWH"}
+            ]
+        },
+        {
+            "name": "tempsensor_easy",
+            "template": [                
+                {"name": "param8b", "type": "template", "id":"tem.templ.param8b"},
+                {"name": "temp10", "type": "template", "id":"tem.templ.temp10"}
+            ]
+        }
+
+    ],
+
+
+
+    "commands":
+    [
+        
+        {
+            "label":    "00-007 WP Vorlauftemperatur WE",
+            "id":       "wp_ping.vl_temp_ist",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 87 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Vorlauftemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-008 WP Ruecklauftemperatur WE",
+            "id":       "wp_ping.rl_temp_ist",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 88 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Ruecklauftemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-070 WQ Austrittstemperatur",
+            "id":       "wp_ping.wq_temp_out",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 c6 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WQ Austrittstemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-071 WQ Eintrittstemperatur",
+            "id":       "wp_ping.wq_temp_in",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 c7 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WQ Eingangstemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-053 WP Status",
+            "id":       "wp_ping.status",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "02 b5 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Status","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-072 Uhrzeit",
+            "id":       "wp_ping.time",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "02 c8 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Uhrzeit","id":"tem.timeblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-073 Wochentag",
+            "id":       "wp_ping.wd",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "02 c9 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Wochentag","id":"tem.wdblock"}
+                ]
+            }
+        },
+        {
+            "label":    "00-000 Aussentemperatur",
+            "id":       "wp_ping.at",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 80 00 42"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Aussentemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "01-007 WP Vorlauftemperatur Soll",
+            "id":       "wp_stat.vl_temp_soll",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7d 81 00 02"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Vorlauftemperatur Soll","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-072 WP Heissgastemperatur",
+            "id":       "wp_stat.temp_hg",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7d 85 00 02"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Heissgastemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-080 Schaltzyklen",
+            "id":       "wp_stat.sz_1",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7d 87 00 02"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Schaltzyklen","id":"tem.countblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-081 Betriebsstunden",
+            "id":       "wp_stat.bs_1",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7d 88 00 02"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WP Betriebsstunden","id":"tem.hourblock"}
+                ]
+            }
+        },
+        {
+            "label":    "00-004 Warmwassertemperatur",
+            "id":       "ww_stat.temp_ist",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "79 80 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Warmwassertemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "01-004 Warmwassertemperatur Sollwert",
+            "id":       "ww_stat.temp_soll",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "79 81 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Warmwassertemperatur Soll","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-052 WW Status",
+            "id":       "ww_stat.status",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "79 82 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WW Status","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "01-054 WW Ladungsanforderung",
+            "id":       "ww_relais.ladungsanforderung",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "76 80 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WW Ladungsanforderung","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "01-065 WW Zirkulationspumpe",
+            "id":       "ww_relais.zirkulationspumpe",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "76 81 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WW Zirkulationspumpe","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "01-066 WW Ladungspumpe",
+            "id":       "ww_relais.ladungspumpe",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "76 82 00 0e"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"WW Ladungspumpe","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "00-002 Heizkreis Vorlauftemperatur",
+            "id":       "hk_stat.vl_temp_ist",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "77 82 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"HK Vorlauftemperatur Ist","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "01-002 Heizkreis Sollwert",
+            "id":       "hk_stat.vl_temp_soll",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "77 83 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"HK Vorlauftemperatur Soll","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-051 Heizkreis Status",
+            "id":       "hk_stat.status",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "77 85 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"HK Status","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "01-020 Heizkreis Pumpe",
+            "id":       "hk_relais.hk_pumpe",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "75 80 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"HK Pumpe","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "01-021 Heizkreis Mischer",
+            "id":       "hk_relais.hk_mixer",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "75 81 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"HK Mixer","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "00-001 Raumtemperatur",
+            "id":       "hk_stat.raumtemp",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "00 81 00 4a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Raumtemperatur","id":"tem.tempsensor"}
+                ]
+            },
+            "set": {
+                "master": [
+                    {"type":"static", "default": "00 81 00 4a"},
+                    {"type":"template-block","label":"Raumtemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "01-001 Raumtemperatur Soll",
+            "id":       "hk_stat.raumtemp_soll",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "77 81 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Raumtemperatur Soll","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "03-051 Normal Raumtemperatur",
+            "id":       "hk_param.temp_raum_normal",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "63 84 00 0a"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Normal Raumtemperatur","id":"tem.tempsensor"}
+                ]
+            },
+            "set": {
+                "master": [
+                    {"type":"static", "default": "63 84 00 0a"},
+                    {"type":"template-block","label":"Normal Raumtemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-015 Puffertemperatur oben",
+            "id":       "wm_stat.puffer_oben",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7a 80 00 10"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Puffertemperatur oben","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "00-107 Anlagentemperatur",
+            "id":       "wm_stat.anlagentemp",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7a 82 00 10"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Anlagentemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-040 Heizleistung Heizen",
+            "id":       "wm_stat.leistung_heizen",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "02 a8 00 50"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Heizleistung Heizen","id":"tem.powerblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-041 Heizleistung WW",
+            "id":       "wm_stat.leistung_ww",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "02 a9 00 50"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Heizleistung WW","id":"tem.powerblock"}
+                ]
+            }
+        },
+
+        {
+            "label":    "00-007 Vorlauftemperatur",
+            "id":       "zh.vorlauf_temp_ist",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 80 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Vorlauftemperatur","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "01-007 Vorlauftemperatur Soll",
+            "id":       "zh.vorlauf_temp_soll",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 81 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"Vorlauftemperatur Soll","id":"tem.tempsensor"}
+                ]
+            }
+        },
+        {
+            "label":    "02-053 ZH Status",
+            "id":       "zh.status",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 82 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"ZH Status","id":"tem.statusblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-080 ZH Schaltzyklen",
+            "id":       "zh.zyklen",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 83 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"ZH Zyklen","id":"tem.countblock"}
+                ]
+            }
+        },
+        {
+            "label":    "02-081 ZH Betriebsstunden",
+            "id":       "zh.stunden",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 84 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"ZH Betriebsstunden","id":"tem.hourblock"}
+                ]
+            }
+        },
+        {
+            "label":    "23-001 ZH Heizenergie kwh",
+            "id":       "zh.energie_kwh",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 85 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"ZH Energie kwh","id":"tem.powerblock"}
+                ]
+            }
+        },
+        {
+            "label":    "23-010 ZH Heizenergie Mwh",
+            "id":       "zh.energie_mwh",
+            "command":  "06 21",
+
+            "get": {
+                "master": [
+                    {"type": "static", "default": "7e 86 00 04"}
+                ],
+                "slave": [
+                    {"type":"template-block","label":"ZH Energie Mwh","id":"tem.powerMWHblock"}
+                ]
+            }
+        },
+
+        {
+            "label":    "Date/Time of an eBUS Master",
+            "id":       "common.time",
+            "command":  "07 00",
+
+            "broadcast": {
+                "master": [
+                    {"name": "temp_outside", "type": "data2b", "label": "Outside temperature", "format":"%.1f°C"},
+                    {"name": "time", "type": "datetime", "label": "Date/Time"}
+                ]
+            }
+        }
+
+       
+
+        
+
+    ]
+}
